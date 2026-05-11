@@ -1,0 +1,14 @@
+# Rust build artifacts (current project layout)
+/os/target/
+/target/
+
+# Backup files occasionally created by rustfmt/tools
+**/*.rs.bk
+
+# IDE/editor and OS noise
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
