@@ -1,0 +1,22 @@
+# Cargo 配置文件
+# 
+# 这个文件告诉 Cargo 如何编译我们的操作系统内核
+
+# 构建配置
+[build]
+# 指定目标平台为 RISC-V 64 位无操作系统环境
+# riscv64gc-unknown-none-elf 表示：
+# - riscv64: RISC-V 64 位架构
+# - gc: 支持压缩指令（C）和原子指令（A）扩展
+# - unknown-none-elf: 无操作系统，目标格式为 ELF
+target = "riscv64gc-unknown-none-elf"
+
+# 针对特定目标的配置
+[target.riscv64gc-unknown-none-elf]
+# Rust 编译器标志
+rustflags = [
+    # -C link-arg=-Tsrc/linker.ld 告诉链接器使用我们自定义的链接脚本
+    # -T 参数指定链接脚本文件
+    "-C", "link-arg=-Tsrc/linker.ld",
+]
+
