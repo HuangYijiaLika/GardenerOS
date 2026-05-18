@@ -1,6 +1,9 @@
 # Rust build artifacts (current project layout)
 */target/
 
+# Generated source during OS build
+os/src/link_app.S
+
 # Backup files occasionally created by rustfmt/tools
 **/*.rs.bk
 
