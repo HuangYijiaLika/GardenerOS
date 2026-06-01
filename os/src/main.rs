@@ -7,6 +7,7 @@ use core::arch::global_asm;
 mod console;
 mod lang_items;
 mod sbi;
+mod timer;
 mod syscall;
 mod trap;
 mod loader;
@@ -31,6 +32,8 @@ pub fn rust_main() -> ! {
     clear_bss();
     println!("[kernel] Hello, world!");
     trap::init();
+    trap::enable_timer_interrupt();
+    timer::set_next_trigger();
     loader::load_apps();
     task::run_first_task();
     panic!("Unreachable in rust_main!");

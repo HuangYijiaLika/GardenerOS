@@ -18,11 +18,22 @@ use riscv::register::{
         self,
         Trap,
         Exception,
+        Interrupt,
     },
     stval,
+    sie,
 };
 
 use crate::syscall::syscall;
+use crate::task::{
+    exit_current_and_run_next,
+    suspend_current_and_run_next,
+};
+use crate::timer::set_next_trigger;
+
+pub fn enable_timer_interrupt() {
+    unsafe { sie::set_stimer(); }
+}
 
 #[no_mangle]
 pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
@@ -35,12 +46,20 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
         }
         Trap::Exception(Exception::StoreFault) |
         Trap::Exception(Exception::StorePageFault) => {
-            println!("[kernel] PageFault in application, core dumped.");
-            // run_next_app();
+            println!(
+                "[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, core dumped.",
+                stval,
+                cx.sepc
+            );
+            exit_current_and_run_next();
         }
         Trap::Exception(Exception::IllegalInstruction) => {
             println!("[kernel] IllegalInstruction in application, core dumped.");
-            // run_next_app();
+            exit_current_and_run_next();
+        }
+        Trap::Interrupt(Interrupt::SupervisorTimer) => {
+            set_next_trigger();
+            suspend_current_and_run_next();
         }
         _ => {
             panic!("Unsupported trap {:?}, stval = {:#x}!", scause.cause(), stval);
