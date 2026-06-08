@@ -21,6 +21,7 @@ mod loader;
 mod config;
 mod task;
 mod mm;
+mod sync;
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
