@@ -1,7 +1,10 @@
 #![no_std]
 #![no_main]
+#![feature(alloc_error_handler)]
 
 use core::arch::global_asm;
+
+extern crate alloc;
 
 #[macro_use]
 mod console;
@@ -13,6 +16,7 @@ mod trap;
 mod loader;
 mod config;
 mod task;
+mod mm;
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
@@ -30,6 +34,7 @@ fn clear_bss() {
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
+    mm::init();
     println!("[kernel] Hello, world!");
     trap::init();
     trap::enable_timer_interrupt();
