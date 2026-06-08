@@ -27,6 +27,10 @@ SECTIONS
     stext = .;    /* 代码段起始标记 */
     .text : {
         *(.text.entry)   /* 先放入口代码（entry.asm 中的 _start） */
+        . = ALIGN(4K);
+        strampoline = .;
+        *(.text.trampoline);
+        . = ALIGN(4K);
         *(.text .text.*) /* 再放其他代码 */
     }
 
@@ -58,6 +62,7 @@ SECTIONS
 
     /* ========== .bss 段（未初始化数据段）========== */
     /* 存放未初始化的全局变量，启动时会被清零 */
+    sbss_with_stack = .;
     .bss : {
         *(.bss.stack)  /* 先放栈空间（在 entry.asm 中定义） */
         sbss = .;      /* .bss 段起始标记 */
