@@ -285,6 +285,15 @@ impl MemorySet {
         (memory_set, user_stack_top, elf.header.pt2.entry_point() as usize)
     }
 }
+impl MemorySet {
+    pub fn remove_area_with_start_vpn(&mut self, start_vpn: VirtPageNum) {
+        if let Some((idx, area)) = self.areas.iter_mut().enumerate()
+            .find(|(_, area)| area.vpn_range.get_start() == start_vpn) {
+            area.unmap(&mut self.page_table);
+            self.areas.remove(idx);
+        }
+    }
+}
 
 lazy_static! {
     pub static ref KERNEL_SPACE: Arc<UPSafeCell<MemorySet>> = Arc::new(unsafe {
