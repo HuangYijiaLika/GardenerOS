@@ -1,5 +1,4 @@
 use crate::mm::translated_byte_buffer;
-use crate::task::current_user_token;
 use crate::task::{current_user_token, suspend_current_and_run_next};
 use crate::sbi::console_getchar;
 const FD_STDIN: usize = 0;

@@ -23,6 +23,17 @@ pub use processor::{
 };
 pub use manager::add_task;
 pub use pid::{PidHandle, pid_alloc, KernelStack};
+
+lazy_static! {
+    pub static ref INITPROC: Arc<TaskControlBlock> = Arc::new(
+        TaskControlBlock::new(get_app_data_by_name("initproc").unwrap())
+    );
+}
+
+pub fn add_initproc() {
+    add_task(INITPROC.clone());
+}
+
 pub fn suspend_current_and_run_next() {
     // There must be an application running.
     let task = take_current_task().unwrap();
@@ -53,10 +64,14 @@ pub fn exit_current_and_run_next(exit_code: i32) {
 
     // ++++++ access initproc TCB exclusively
     {
-        let mut initproc_inner = INITPROC.inner_exclusive_access();
-        for child in inner.children.iter() {
-            child.inner_exclusive_access().parent = Some(Arc::downgrade(&INITPROC));
-            initproc_inner.children.push(child.clone());
+        // If current task is initproc itself, skip reparenting
+        // to avoid double-borrowing the same RefCell.
+        if !Arc::ptr_eq(&task, &INITPROC) {
+            let mut initproc_inner = INITPROC.inner_exclusive_access();
+            for child in inner.children.iter() {
+                child.inner_exclusive_access().parent = Some(Arc::downgrade(&INITPROC));
+                initproc_inner.children.push(child.clone());
+            }
         }
     }
     // ++++++ release parent PCB
