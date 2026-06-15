@@ -54,6 +54,11 @@ impl MapArea {
         }
     }
 }
+impl MemorySet {
+    pub fn recycle_data_pages(&mut self) {
+        self.areas.clear();
+    }
+}
 
 impl MemorySet {
     pub fn from_existed_user(user_space: &MemorySet) -> MemorySet {
